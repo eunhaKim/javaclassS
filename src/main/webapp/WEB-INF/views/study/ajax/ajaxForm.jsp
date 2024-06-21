@@ -89,7 +89,7 @@
     			let str = '<h5>vos로 전송된 자료 출력</h5>';
     			
     			if(vos != '') {
-    				str += '<table class="table table-hover text-center">';
+    				str += '<table class="table table-bordered table-hover text-center">';
     				str += '<tr class="table-secondary">';
     				str += '<th>아이디</th><th>성명</th><th>나이</th><th>주소</th>';
     				str += '</tr>';
@@ -101,7 +101,7 @@
 	    			  str += '<td>' + vos[i].address + '</td>';
 	    				str += '</tr>';
     				}
-    				str += '<tr><td colspan="4" class="m-0 p-0"></td></tr>';
+    				/* str += '<tr><td colspan="4" class="m-0 p-0"></td></tr>'; */
     				str += '</table>';
     			}
     			else {

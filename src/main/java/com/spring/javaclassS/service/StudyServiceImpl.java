@@ -11,11 +11,10 @@ import com.spring.javaclassS.vo.UserVO;
 
 @Service
 public class StudyServiceImpl implements StudyService {
-
 	
 	@Autowired
 	StudyDAO studyDAO;
-	
+
 	@Override
 	public String[] getCityStringArray(String dodo) {
 		String[] strArray = new String[100];
@@ -144,8 +143,28 @@ public class StudyServiceImpl implements StudyService {
 	}
 
 	@Override
-	public void setSaveCrimeData(CrimeVO vo) {
-		studyDAO.setSaveCrimeData(vo);
+	public void setSaveCrimeDate(CrimeVO vo) {
+		studyDAO.setSaveCrimeDate(vo);
+	}
+
+	@Override
+	public void setDeleteCrimeDate(int year) {
+		studyDAO.setDeleteCrimeDate(year);
+	}
+
+	@Override
+	public ArrayList<CrimeVO> getListCrimeDate(int year) {
+		return studyDAO.getListCrimeDate(year);
+	}
+
+	@Override
+	public ArrayList<CrimeVO> getYearPoliceCheck(int year, String police, String yearOrder) {
+		return studyDAO.getYearPoliceCheck(year, police, yearOrder);
+	}
+
+	@Override
+	public CrimeVO getAnalyzeTotal(int year, String police) {
+		return studyDAO.getAnalyzeTotal(year, police);
 	}
 
 }

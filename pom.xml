@@ -115,9 +115,9 @@
 			<artifactId>junit</artifactId>
 			<version>4.7</version>
 			<scope>test</scope>
-		</dependency>   
+		</dependency>
 		
-		<!-- Database작업을 위한 설정 : 4개 -->
+		<!-- Database작업을 위한 설정 4개 -->
 		<!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
 		<dependency>
 	    <groupId>org.springframework</groupId>
@@ -128,7 +128,7 @@
 		<dependency>
 	    <groupId>mysql</groupId>
 	    <artifactId>mysql-connector-java</artifactId>
-	    <version>5.1.38</version>
+	    <version>5.1.49</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.mybatis/mybatis -->
 		<dependency>
@@ -142,7 +142,7 @@
 	    <artifactId>mybatis-spring</artifactId>
 	    <version>2.0.6</version>
 		</dependency>
-				
+		
 		<!-- lombok라이브러리 -->
 		<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
 		<dependency>
@@ -150,9 +150,9 @@
 	    <artifactId>lombok</artifactId>
 	    <version>1.18.24</version>
 	    <scope>provided</scope>
-		</dependency>		
-				
-		<!-- AJax를 위한 라이브럴리(2개) -->
+		</dependency>
+		
+		<!-- AJax를 위할 라이브러리(2개) -->
 		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
 		<dependency>
 	    <groupId>com.fasterxml.jackson.core</groupId>
@@ -165,10 +165,48 @@
 	    <artifactId>jackson-mapper-asl</artifactId>
 	    <version>1.9.13</version>
 		</dependency>
-
+		
+		<!-- mail전송을 위한 라이브러리(2개) -->
+		<!-- https://mvnrepository.com/artifact/javax.mail/mail -->
+		<dependency>
+		    <groupId>javax.mail</groupId>
+		    <artifactId>mail</artifactId>
+		    <version>1.4.7</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-context-support -->
+		<dependency>
+	    <groupId>org.springframework</groupId>
+	    <artifactId>spring-context-support</artifactId>
+	    <version>${org.springframework-version}</version>
+		</dependency>
+		
+		<!-- Spring Security를 위한 라이브러리(3개) -->
+		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-core -->
+		<dependency>
+	    <groupId>org.springframework.security</groupId>
+	    <artifactId>spring-security-core</artifactId>
+	    <version>4.2.3.RELEASE</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-web -->
+		<dependency>
+	    <groupId>org.springframework.security</groupId>
+	    <artifactId>spring-security-web</artifactId>
+	    <version>4.2.3.RELEASE</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-config -->
+		<dependency>
+	    <groupId>org.springframework.security</groupId>
+	    <artifactId>spring-security-config</artifactId>
+	    <version>4.2.3.RELEASE</version>
+		</dependency>
 		
 		
-		     
+		
+		
+		
+		
+		
+		       
 	</dependencies>
     <build>
         <plugins>

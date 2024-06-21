@@ -3,7 +3,14 @@ package com.spring.javaclassS.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,17 +21,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.spring.javaclassS.service.DbtestService;
 import com.spring.javaclassS.service.StudyService;
 import com.spring.javaclassS.vo.CrimeVO;
+import com.spring.javaclassS.vo.MailVO;
 import com.spring.javaclassS.vo.UserVO;
 
 @Controller
 @RequestMapping("/study")
 public class StudyController {
-
+	
 	@Autowired
 	StudyService studyService;
 	
 	@Autowired
 	DbtestService dbtestService;
+	
+	@Autowired
+	JavaMailSender mailSender;
 	
 	
 	@RequestMapping(value = "/ajax/ajaxForm", method = RequestMethod.GET)
@@ -147,10 +158,85 @@ public class StudyController {
 	}
 	
 	@ResponseBody
-	@RequestMapping(value = "/restapi/saveCrimeData", method = RequestMethod.POST)
-	public void saveCrimeDataPost(CrimeVO vo) {
-		studyService.setSaveCrimeData(vo);
+	@RequestMapping(value = "/restapi/saveCrimeDate", method = RequestMethod.POST)
+	public void saveCrimeDatePost(CrimeVO vo) {
+		studyService.setSaveCrimeDate(vo);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/restapi/deleteCrimeDate", method = RequestMethod.POST)
+	public void deleteCrimeDatePost(int year) {
+		studyService.setDeleteCrimeDate(year);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/restapi/listCrimeDate", method = RequestMethod.POST)
+	public ArrayList<CrimeVO> listCrimeDatePost(int year) {
+		return studyService.getListCrimeDate(year);
+	}
+	
+	@RequestMapping(value = "/restapi/yearPoliceCheck", method = RequestMethod.POST)
+	public String yearPoliceCheckPost(int year, String police, String yearOrder, Model model) {
+		ArrayList<CrimeVO> vos = studyService.getYearPoliceCheck(year, police, yearOrder);
+		model.addAttribute("vos", vos);
 		
+		CrimeVO analyzeVo = studyService.getAnalyzeTotal(year, police);
+		model.addAttribute("analyzeVo", analyzeVo);
+		
+		model.addAttribute("year", year);
+		model.addAttribute("police", police);
+		model.addAttribute("totalCnt", analyzeVo.getTotMurder()+analyzeVo.getTotRobbery()+analyzeVo.getTotTheft()+analyzeVo.getTotViolence());
+		
+		return "study/restapi/restapiTest4";
+	}
+	
+	@RequestMapping(value = "/mail/mailForm", method = RequestMethod.GET)
+	public String mailFormGet() {
+		return "study/mail/mailForm";
+	}
+	
+	// 메일 전송하기
+	@RequestMapping(value = "/mail/mailForm", method = RequestMethod.POST)
+	public String mailFormPost(MailVO vo, HttpServletRequest request) throws MessagingException {
+		String toMail = vo.getToMail();
+		String title = vo.getTitle();
+		String content = vo.getContent();
+		
+		// 메일 전송을 위한 객체 : MimeMessage(), MimeMessageHelper()
+		MimeMessage message = mailSender.createMimeMessage();
+		MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
+		
+		// 메일보관함에 작성한 메세지들의 정보를 모두 저장시킨후 작업처리...
+		messageHelper.setTo(toMail);			// 받는 사람 메일 주소
+		messageHelper.setSubject(title);	// 메일 제목
+		messageHelper.setText(content);		// 메일 내용
+		
+		// 메세지 보관함의 내용(content)에 , 발신자의 필요한 정보를 추가로 담아서 전송처리한다.
+		content = content.replace("\n", "<br>");
+		content += "<br><hr><h3>javaclass 에서 보냅니다.</h3><hr><br>";
+		content += "<p><img src=\"cid:main.jpg\" width='500px'></p>";
+		content += "<p>방문하기 : <a href='http://49.142.157.251:9090/cjgreen'>javaclass</a></p>";
+		content += "<hr>";
+		messageHelper.setText(content, true);
+		
+		// 본문에 기재될 그림파일의 경로를 별도로 표시시켜준다. 그런후 다시 보관함에 저장한다.
+		//FileSystemResource file = new FileSystemResource("D:\\javaclass\\springframework\\works\\javaclassS\\src\\main\\webapp\\resources\\images\\main.jpg");
+		
+		//request.getSession().getServletContext().getRealPath("/resources/images/main.jpg");
+		FileSystemResource file = new FileSystemResource(request.getSession().getServletContext().getRealPath("/resources/images/main.jpg"));
+		messageHelper.addInline("main.jpg", file);
+		
+		// 첨부파일 보내기
+		file = new FileSystemResource(request.getSession().getServletContext().getRealPath("/resources/images/chicago.jpg"));
+		messageHelper.addAttachment("chicago.jpg", file);
+		file = new FileSystemResource(request.getSession().getServletContext().getRealPath("/resources/images/sanfran.zip"));
+		messageHelper.addAttachment("sanfran.zip", file);
+		
+		
+		// 메일 전송하기
+		mailSender.send(message);
+		
+		return "redirect:/message/mailSendOk";
 	}
 	
 }
