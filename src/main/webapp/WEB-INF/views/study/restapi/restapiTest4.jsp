@@ -274,22 +274,22 @@
         <td>
           ${analyzeVo.avgRobbery}
           <c:set var="biyul" value="${analyzeVo.totRobbery/totalCnt}"/>건
-          (<fmt:formatNumber value="${biyul}" type="percent" pattern="#0.0#%"/>)
+          (<fmt:formatNumber value="${biyul}" type="percent" pattern="#0.0#%" />)
         </td>
         <td>
           ${analyzeVo.avgMurder}
           <c:set var="biyul" value="${analyzeVo.totMurder/totalCnt}"/>건
-          (<fmt:formatNumber value="${biyul}" type="percent" pattern="#0.0#%"/>)
+          (<fmt:formatNumber value="${biyul}" type="percent" pattern="#0.0#%" />)
         </td>
         <td>
           ${analyzeVo.avgTheft}
           <c:set var="biyul" value="${analyzeVo.totTheft/totalCnt}"/>건
-          (<fmt:formatNumber value="${biyul}" type="percent" pattern="#0.0#%"/>)
+          (<fmt:formatNumber value="${biyul}" type="percent" pattern="#0.0#%" />)
         </td>
         <td>
           ${analyzeVo.avgViolence}
           <c:set var="biyul" value="${analyzeVo.totViolence/totalCnt}"/>건
-          (<fmt:formatNumber value="${biyul}" type="percent" pattern="#0.0#%"/>)
+          (<fmt:formatNumber value="${biyul}" type="percent" pattern="#0.0#%" />)
         </td>
       </tr>
     </table>

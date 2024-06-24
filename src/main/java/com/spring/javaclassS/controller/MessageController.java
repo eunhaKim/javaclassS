@@ -14,7 +14,7 @@ public class MessageController {
 	public String getMessage(Model model,
 			@PathVariable String msgFlag,
 			@RequestParam(name="mid", defaultValue = "", required = false) String mid
-			) {
+		) {
 		
 		if(msgFlag.equals("userDeleteOk")) {
 			model.addAttribute("msg", "회원 자료가 삭제 되었습니다.");
@@ -89,10 +89,29 @@ public class MessageController {
 			model.addAttribute("url", "/member/memberLogin");
 		}
 		else if(msgFlag.equals("memberJoinNo")) {
-			model.addAttribute("msg", "회원가입실패");
+			model.addAttribute("msg", "회원 가입 실패~~");
 			model.addAttribute("url", "/member/memberJoin");
 		}
-		
+		else if(msgFlag.equals("memberLoginOk")) {
+			model.addAttribute("msg", mid+"님 로그인 되셨습니다.");
+			model.addAttribute("url", "/member/memberMain");
+		}
+		else if(msgFlag.equals("memberLoginNo")) {
+			model.addAttribute("msg", "로그인 실패~~");
+			model.addAttribute("url", "/member/memberLogin");
+		}
+		else if(msgFlag.equals("memberLogout")) {
+			model.addAttribute("msg", mid + "님 로그아웃 되셨습니다.");
+			model.addAttribute("url", "/member/memberLogin");
+		}
+		else if(msgFlag.equals("fileUploadOk")) {
+			model.addAttribute("msg", "파일이 업로드 되었습니다.");
+			model.addAttribute("url", "/study/fileUpload/fileUpload");
+		}
+		else if(msgFlag.equals("fileUploadNo")) {
+			model.addAttribute("msg", "파일 업로드 실패~~");
+			model.addAttribute("url", "/study/fileUpload/fileUpload");
+		}
 		
 		
 		return "include/message";
