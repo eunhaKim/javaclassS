@@ -22,4 +22,8 @@ public interface MemberDAO {
 
 	public ArrayList<MemberVO> getMemberList(@Param("level") int level);
 
+	public int setMemberUpdateOk(@Param("vo") MemberVO vo);
+
+	public int setUserDel(@Param("mid") String mid);
+
 }

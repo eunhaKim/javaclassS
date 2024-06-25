@@ -30,7 +30,7 @@
     // 각 레벨(등급)별 회원 보기...
     function levelItemCheck() {
     	let level = $("#levelItem").val();
-    	location.href = "MemberList.ad?level="+level;
+    	location.href = "memberList?level="+level;
     }
     
     // 회원별 각각의 등급 변경처리(ajax처리)
@@ -48,8 +48,8 @@
     	}
     	
     	$.ajax({
-    		url  : "MemberLevelChange.ad",
-    		type : "get",
+    		url  : "${ctp}/admin/member/memberLevelChange",
+    		type : "post",
     		data : query,
     		success:function(res) {
     			if(res != "0") {
@@ -65,13 +65,16 @@
     }
     
     // 30일 경과회원 삭제처리
-    function memberDeleteOk(idx) {
+    function memberDeleteOk(idx, photo) {
     	let ans = confirm("선택하신 회원을 영구 삭제 하시겠습니까?");
     	if(ans) {
     		$.ajax({
-    			url  : "MemberDeleteOk.ad",
+    			url  : "${ctp}/admin/member/memberDeleteOk",
     			type : "post",
-    			data : {idx : idx},
+    			data : {
+    				idx : idx,
+    				photo : photo
+    			},
     			success:function(res) {
     				if(res != "0") {
     					alert("영구 삭제 되었습니다.");
@@ -127,7 +130,7 @@
       }
       
       $.ajax({
-    	  url  : "MemberLevelSelectCheck.ad",
+    	  url  : "${ctp}/admin/member/memberLevelSelectCheck",
     	  type : "post",
     	  data : query,
     	  success:function(res) {
@@ -149,12 +152,12 @@
     <div class="col"><input type="checkbox" name="userInfor" id="userInfor" onclick="userCheck()" /> 비공개회원만보기/전체보기</div>
     <div class="col text-right">
       <select name="levelItem" id="levelItem" onchange="levelItemCheck()">
-        <option value="999" ${level > 4  ? "selected" : ""}>전체보기</option>
-        <option value="1"   ${level == 1 ? "selected" : ""}>준회원</option>
-        <option value="2"   ${level == 2 ? "selected" : ""}>정회원</option>
-        <option value="3"   ${level == 3 ? "selected" : ""}>우수회원</option>
-        <option value="99"  ${level == 99 ? "selected" : ""}>탈퇴신청회원</option>
-        <option value="0"   ${level == 0 ? "selected" : ""}>관리자</option>
+        <option value="99"   ${level >= 4  ? "selected" : ""}>전체보기</option>
+        <option value="1"    ${level == 1 ? "selected"  : ""}>우수회원</option>
+        <option value="2"    ${level == 2 ? "selected"  : ""}>정회원</option>
+        <option value="3"    ${level == 3 ? "selected"  : ""}>준회원</option>
+        <option value="999"  ${level == 999 ? "selected": ""}>탈퇴신청회원</option>
+        <option value="0"    ${level == 0 ? "selected"  : ""}>관리자</option>
       </select>
     </div>
   </div>
@@ -169,8 +172,8 @@
 		    <div class="input-group-append">
 		      <select name="levelSelect" id="levelSelect">
 		        <option value="2">정회원</option>
-		        <option value="1">준회원</option>
-		        <option value="3">우수회원</option>
+		        <option value="3">준회원</option>
+		        <option value="1">우수회원</option>
 		      </select>
 		      <div class="input-group-append"><input type="button" value="선택항목등급변경" onclick="levelSelectCheck()" class="btn btn-warning btn-sm" /></div>
 		    </div>
@@ -178,13 +181,13 @@
 	    <div class="col text-right">
 			  <!-- 페이지처리 시작(이전/다음) -->
   	    <c:if test="${pag > 1}">
-  	    	<a href="${ctp}/MemberList.ad?pag=1&pageSize=${pageSize}" title="첫페이지">◁◁</a>
-  	    	<a href="${ctp}/MemberList.ad?pag=${pag-1}&pageSize=${pageSize}" title="이전페이지">◀</a>
+  	    	<a href="${ctp}/admin/member/memberList?pag=1&pageSize=${pageSize}" title="첫페이지">◁◁</a>
+  	    	<a href="${ctp}/admin/member/memberList?pag=${pag-1}&pageSize=${pageSize}" title="이전페이지">◀</a>
   	    </c:if>
   	    ${pag}/${totPage}
   	    <c:if test="${pag < totPage}">
-  	    	<a href="${ctp}/MemberList.ad?pag=${pag+1}&pageSize=${pageSize}" title="다음페이지">▶</a>
-  	    	<a href="${ctp}/MemberList.ad?pag=${totPage}&pageSize=${pageSize}" title="마지막페이지">▷▷</a>
+  	    	<a href="${ctp}/admin/member/memberList?pag=${pag+1}&pageSize=${pageSize}" title="다음페이지">▶</a>
+  	    	<a href="${ctp}/admin/member/memberList?pag=${totPage}&pageSize=${pageSize}" title="마지막페이지">▷▷</a>
   	    </c:if>
 	  	  <!-- 페이지처리 끝(이전/다음) -->
 	    </div>
@@ -211,7 +214,7 @@
 			        <td>
 			          <c:if test="${vo.level != 0}"><input type="checkbox" name="idxFlag" id="idxFlag${vo.idx}" value="${vo.idx}"/></c:if>
 			          <c:if test="${vo.level == 0}"><input type="checkbox" name="idxFlag" id="idxFlag${vo.idx}" value="${vo.idx}" disabled /></c:if>
-			          ${vo.idx}
+			          ${curScrStartNo}
 			        </td>
 			        <td><a href="MemberSearch.mem?mid=${vo.mid}">${vo.mid}</a></td>
 			        <td>${vo.nickName}</td>
@@ -224,18 +227,18 @@
 			          <c:if test="${vo.userDel == 'OK'}"><font color="red"><b>${active}</b></font></c:if>
 			          <c:if test="${vo.userDel != 'OK'}">${active}</c:if>
 			          <c:if test="${vo.userDel == 'OK' && vo.deleteDiff >= 30}"><br/>
-			            (<a href="javascript:memberDeleteOk(${vo.idx})">30일경과</a>)
+			            (<a href="javascript:memberDeleteOk('${vo.idx}','${vo.photo}')">30일경과</a>)
 			          </c:if>
 			        </td>
 			        <td>
 		            <c:if test="${vo.level != 0}">
 				          <!-- <form name="levelForm"> -->
 				          	<select name="level" id="level" onchange="levelChange(this)">
-				          	  <option value="1/${vo.idx}"  ${vo.level == 1  ? "selected" : ""}>준회원</option>
+				          	  <option value="1/${vo.idx}"  ${vo.level == 1  ? "selected" : ""}>우수회원</option>
 				          	  <option value="2/${vo.idx}"  ${vo.level == 2  ? "selected" : ""}>정회원</option>
-				          	  <option value="3/${vo.idx}"  ${vo.level == 3  ? "selected" : ""}>우수회원</option>
+				          	  <option value="3/${vo.idx}"  ${vo.level == 3  ? "selected" : ""}>준회원</option>
 				          	  <option value="0/${vo.idx}"  ${vo.level == 0  ? "selected" : ""}>관리자</option>
-				          	  <option value="99/${vo.idx}" ${vo.level == 99 ? "selected" : ""}>탈퇴신청회원</option>
+				          	  <option value="999/${vo.idx}" ${vo.level == 999 ? "selected" : ""}>탈퇴신청회원</option>
 				          	</select>
 				          <!-- </form> -->
 		          	</c:if>
@@ -243,6 +246,7 @@
 			        </td>
 			      </tr>
 		      </c:if>
+		      <c:set var="curScrStartNo" value="${curScrStartNo - 1}"/>
 		    </c:forEach>
 		    <tr><td colspan="10" class="m-0 p-0"></td></tr>
 		  </table>
@@ -262,10 +266,11 @@
 		      <th>최종방문일</th>
 		      <th>오늘방문횟수</th>
 		    </tr>
+		    <c:set var="no" value="1"/>
 		    <c:forEach var="vo" items="${vos}" varStatus="st">
 		      <c:if test="${vo.userInfor == '비공개'}">
 			      <tr>
-			        <td>${st.count}</td>
+			        <td>${no}</td>
 			        <td>${vo.mid}</td>
 			        <td>${vo.nickName}</td>
 			        <td>${vo.name}</td>
@@ -274,6 +279,7 @@
 			        <td>${fn:substring(vo.lastDate,0,10)}</td>
 			        <td>${vo.todayCnt}</td>
 			      </tr>
+			      <c:set var="no" value="${no + 1}"/>
 		      </c:if>
 		    </c:forEach>
 		    <tr><td colspan="8" class="m-0 p-0"></td></tr>
@@ -284,14 +290,14 @@
 	<!-- 블록페이지 시작(1블록의 크기를 3개(3Page)로 한다. -->
 	<div class="text-center">
 	  <ul class="pagination justify-content-center">
-	    <c:if test="${pag > 1}"><li class="page-item"><a class="page-link text-secondary" href="${ctp}/MemberList.ad?pag=1&pageSize=${pageSize}">첫페이지</a></li></c:if>
-	  	<c:if test="${curBlock > 0}"><li class="page-item"><a class="page-link text-secondary" href="${ctp}/MemberList.ad?pag=${(curBlock-1)*blockSize+1}&pageSize=${pageSize}">이전블록</a></li></c:if>
+	    <c:if test="${pag > 1}"><li class="page-item"><a class="page-link text-secondary" href="${ctp}/admin/member/memberList?pag=1&pageSize=${pageSize}">첫페이지</a></li></c:if>
+	  	<c:if test="${curBlock > 0}"><li class="page-item"><a class="page-link text-secondary" href="${ctp}/admin/member/memberList?pag=${(curBlock-1)*blockSize+1}&pageSize=${pageSize}">이전블록</a></li></c:if>
 	  	<c:forEach var="i" begin="${(curBlock*blockSize)+1}" end="${(curBlock*blockSize)+blockSize}" varStatus="st">
-		    <c:if test="${i <= totPage && i == pag}"><li class="page-item active"><a class="page-link bg-secondary border-secondary" href="${ctp}/MemberList.ad?pag=${i}&pageSize=${pageSize}">${i}</a></li></c:if>
-		    <c:if test="${i <= totPage && i != pag}"><li class="page-item"><a class="page-link text-secondary" href="${ctp}/MemberList.ad?pag=${i}&pageSize=${pageSize}">${i}</a></li></c:if>
+		    <c:if test="${i <= totPage && i == pag}"><li class="page-item active"><a class="page-link bg-secondary border-secondary" href="${ctp}/admin/member/memberList?pag=${i}&pageSize=${pageSize}">${i}</a></li></c:if>
+		    <c:if test="${i <= totPage && i != pag}"><li class="page-item"><a class="page-link text-secondary" href="${ctp}/admin/member/memberList?pag=${i}&pageSize=${pageSize}">${i}</a></li></c:if>
 	  	</c:forEach>
-	  	<c:if test="${curBlock < lastBlock}"><li class="page-item"><a class="page-link text-secondary" href="${ctp}/MemberList.ad?pag=${(curBlock+1)*blockSize+1}&pageSize=${pageSize}">다음블록</a></li></c:if>
-	  	<c:if test="${pag < totPage}"><li class="page-item"><a class="page-link text-secondary" href="${ctp}/MemberList.ad?pag=${totPage}&pageSize=${pageSize}">마지막페이지</a></li></c:if>
+	  	<c:if test="${curBlock < lastBlock}"><li class="page-item"><a class="page-link text-secondary" href="${ctp}/admin/member/memberList?pag=${(curBlock+1)*blockSize+1}&pageSize=${pageSize}">다음블록</a></li></c:if>
+	  	<c:if test="${pag < totPage}"><li class="page-item"><a class="page-link text-secondary" href="${ctp}/admin/member/memberList?pag=${totPage}&pageSize=${pageSize}">마지막페이지</a></li></c:if>
 	  </ul>
 	</div>
 	<!-- 블록페이지 끝 -->

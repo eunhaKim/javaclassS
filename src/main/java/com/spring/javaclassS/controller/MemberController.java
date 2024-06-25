@@ -149,7 +149,7 @@ public class MemberController {
 		vo.setPwd(passwordEncoder.encode(vo.getPwd()));
 		
 		// 회원 사진 처리(service객체에서 처리후 DB에 저장한다.)
-		if(!fName.getOriginalFilename().equals("")) vo.setPhoto(memberService.fileUpload(fName, vo.getMid()));
+		if(!fName.getOriginalFilename().equals("")) vo.setPhoto(memberService.fileUpload(fName, vo.getMid(), ""));
 		else vo.setPhoto("noimage.jpg");
 		
 		int res = memberService.setMemberJoinOk(vo);
@@ -244,7 +244,6 @@ public class MemberController {
 	@RequestMapping(value = "/memberPwdCheck", method = RequestMethod.POST)
 	public String memberPwdCheckPost(String mid, String pwd) {
 		MemberVO vo = memberService.getMemberIdCheck(mid);
-		
 		if(passwordEncoder.matches(pwd, vo.getPwd())) return "1";
 		return "0";
 	}
@@ -261,6 +260,47 @@ public class MemberController {
 		ArrayList<MemberVO> vos = memberService.getMemberList(level);
 		model.addAttribute("vos", vos);
 		return "member/memberList";
+	}
+	
+	@RequestMapping(value = "/memberUpdate", method = RequestMethod.GET)
+	public String memberUpdateGet(Model model, HttpSession session) {
+		String mid = (String) session.getAttribute("sMid");
+		MemberVO vo = memberService.getMemberIdCheck(mid);
+		model.addAttribute("vo", vo);
+		return "member/memberUpdate";
+	}
+	
+	@RequestMapping(value = "/memberUpdate", method = RequestMethod.POST)
+	public String memberUpdatePost(MemberVO vo, MultipartFile fName, HttpSession session) {
+		// 닉네임 체크
+		String nickName = (String) session.getAttribute("sNickName");
+		if(memberService.getMemberNickCheck(vo.getNickName()) != null && !nickName.equals(vo.getNickName())) {
+			return "redirect:/message/nickCheckNo";
+		}
+		
+		// 회원 사진 처리(service객체에서 처리후 DB에 저장한다. 원본파일은 noimage.jpg가 아닐경우 삭제한다.)
+		if(fName.getOriginalFilename() != null && !fName.getOriginalFilename().equals("")) vo.setPhoto(memberService.fileUpload(fName, vo.getMid(), vo.getPhoto()));
+		
+		int res = memberService.setMemberUpdateOk(vo);
+		if(res != 0) {
+			session.setAttribute("sNickName", vo.getNickName());
+			return "redirect:/message/memberUpdateOk";
+		}
+		else return "redirect:/message/memberUpdateNo";
+	}
+
+	// 회원 탈퇴...신청...
+	@ResponseBody
+	@RequestMapping(value = "/userDel", method = RequestMethod.POST)
+	public String userDelPost(HttpSession session, HttpServletRequest request) {
+		String mid = (String) session.getAttribute("sMid");
+		int res = memberService.setUserDel(mid);
+		
+		if(res == 1) {
+			session.invalidate();
+			return "1";
+		}
+		else return "0";
 	}
 	
 }
