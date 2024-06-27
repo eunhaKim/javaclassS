@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 
 import com.spring.javaclassS.dao.BoardDAO;
 import com.spring.javaclassS.dao.MemberDAO;
+import com.spring.javaclassS.dao.PdsDAO;
 import com.spring.javaclassS.vo.PageVO;
+import com.spring.javaclassS.vo.PdsVO;
 
 @Service
 public class PageProcess {
@@ -14,7 +16,7 @@ public class PageProcess {
 	BoardDAO boardDAO;
 	
 	@Autowired
-	MemberDAO memberDAO;
+	PdsDAO pdsDAO;
 
 	public PageVO totRecCnt(int pag, int pageSize, String section, String part, String searchString) {
 		PageVO pageVO = new PageVO();
@@ -29,8 +31,7 @@ public class PageProcess {
 				totRecCnt = boardDAO.totRecCntSearch(search, searchString);
 			}
 		}
-		//else if(section.equals("member")) totRecCnt = memberDAO.totRecCnt();
-		//else if(section.equals("pds")) totRecCnt = pdsDAO.totRecCnt();
+		else if(section.equals("pds")) totRecCnt = pdsDAO.totRecCnt(part);
 		
 		int totPage = (totRecCnt % pageSize) == 0 ? (totRecCnt / pageSize) : (totRecCnt / pageSize) + 1;
 		int startIndexNo = (pag - 1) * pageSize;
