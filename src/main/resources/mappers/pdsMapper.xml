@@ -11,8 +11,9 @@
 	</select>
 	
 	<select id="getPdsList" resultType="com.spring.javaclassS.vo.PdsVO">
-		select *  ,datediff(fDate, now()) as date_diff, timestampdiff(hour, fDate, now()) as hour_diff
-		from pds2 <if test="part != '전체'"> where part = #{part} </if> order by idx desc limit #{startIndexNo},#{pageSize};
+		select *,datediff(fDate, now()) as date_diff,
+		  timestampdiff(hour, fDate, now()) as hour_diff
+		 from pds2 <if test="part != '전체'"> where part = #{part} </if> order by idx desc limit #{startIndexNo},#{pageSize};
 	</select>
 	
 	<select id="getPdsContent" resultType="com.spring.javaclassS.vo.PdsVO">

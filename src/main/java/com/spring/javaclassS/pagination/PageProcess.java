@@ -4,10 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.javaclassS.dao.BoardDAO;
-import com.spring.javaclassS.dao.MemberDAO;
 import com.spring.javaclassS.dao.PdsDAO;
 import com.spring.javaclassS.vo.PageVO;
-import com.spring.javaclassS.vo.PdsVO;
 
 @Service
 public class PageProcess {

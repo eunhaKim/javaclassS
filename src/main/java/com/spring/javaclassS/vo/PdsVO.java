@@ -19,7 +19,6 @@ public class PdsVO {
 	private String fDate;
 	private int downNum;
 	private String openSw;
-	private String pwd;
 	private String hostIp;
 	private String content;
 	
