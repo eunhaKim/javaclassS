@@ -199,7 +199,7 @@ public class MemberController {
 	
 	// 일반 로그아웃
 	@RequestMapping(value = "/memberLogout", method = RequestMethod.GET)
-	public String memberLogoutGet(HttpSession session) {
+	public String memberMainGet(HttpSession session) {
 		String mid = (String) session.getAttribute("sMid");
 		session.invalidate();
 		
@@ -238,6 +238,27 @@ public class MemberController {
 		model.addAttribute("mVo", mVo);
 		
 		return "member/memberMain";
+	}
+	
+	// 회원가입시 이메일로 인증번호 전송하기
+	@ResponseBody
+	@RequestMapping(value = "/memberEmailCheck", method = RequestMethod.POST)
+	public String memberEmailCheckPost(String email, HttpSession session) throws MessagingException {
+		UUID uid = UUID.randomUUID();
+		String emailKey = uid.toString().substring(0,8);
+		session.setAttribute("sEmailKey", emailKey);
+		
+		mailSend(email, "이메일 인증키입니다.", "인증키 : "+emailKey);
+		return "1";
+	}
+	
+	// 이메일 확인하기
+	@ResponseBody
+	@RequestMapping(value = "/memberEmailCheckOk", method = RequestMethod.POST)
+	public String memberEmailCheckOkPost(String checkKey, HttpSession session) throws MessagingException {
+		String sCheckKey = (String) session.getAttribute("sEmailKey");
+		if(checkKey.equals(sCheckKey)) return "1";
+		else return "0";
 	}
 	
 	@RequestMapping(value = "/memberJoin", method = RequestMethod.GET)
