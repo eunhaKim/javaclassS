@@ -66,7 +66,7 @@
     }
     
     // 카카오 로그인(자바스크립트 앱키 등록)
-    window.Kakao.init("fde9bae21527997d554b2574bc6ebf80");
+    window.Kakao.init("158c673636c9a17a27b67c95f2c6be5c");
     
     function kakaoLogin() {
     	window.Kakao.Auth.login({

@@ -29,12 +29,12 @@
   }
   
   // 카카오 로그아웃
-  window.Kakao.init("fde9bae21527997d554b2574bc6ebf80");
+  window.Kakao.init("158c673636c9a17a27b67c95f2c6be5c");
   function kakaoLogout() {
 	  const accessToken = Kakao.Auth.getAccessToken();
 	  if(accessToken) {
-		  Kakao.Auth.logout(function(){
-			  window.location.href = "https://kauth.kakao.com/oauth/logout?client_id=fde9bae21527997d554b2574bc6ebf80&logout_redirect_uri=http://localhost:9090/javaclassS/member/memberLogout";
+		  Kakao.Auth.logout(function() {
+			  window.location.href = "https://kauth.kakao.com/oauth/logout?client_id=158c673636c9a17a27b67c95f2c6be5c&logout_redirect_uri=http://localhost:9090/javaclassS/member/memberLogout";
 		  });
 	  }
   }
@@ -55,11 +55,12 @@
 	        <a href="${ctp}/dbtest/dbtestList" class="w3-bar-item w3-button">DB Test</a>
 	        <a href="${ctp}/study/ajax/ajaxForm" class="w3-bar-item w3-button">Ajax Test</a>
 	        <a href="${ctp}/study/restapi/restapi" class="w3-bar-item w3-button">REST API</a>
-	        <a href="${ctp}/password/password" class="w3-bar-item w3-button">암호화</a>
+	        <a href="${ctp}/study/password/password" class="w3-bar-item w3-button">암호화</a>
 	        <a href="${ctp}/study/mail/mailForm" class="w3-bar-item w3-button">메일연습</a>
 	        <a href="${ctp}/study/fileUpload/fileUpload" class="w3-bar-item w3-button">파일업로드연습</a>
 	        <a href="${ctp}/study/crawling/jsoup" class="w3-bar-item w3-button">크롤링(jsoup)</a>
 	        <a href="${ctp}/study/crawling/selenium" class="w3-bar-item w3-button">크롤링(selenium)</a>
+	        <a href="${ctp}/study/wordcloud/wordcloudForm" class="w3-bar-item w3-button">WordCloud</a>
 	      </div>
 	    </div>
 	    <div class="w3-dropdown-hover w3-hide-small">
