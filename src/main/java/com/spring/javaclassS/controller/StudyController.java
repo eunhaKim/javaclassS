@@ -24,6 +24,7 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -45,6 +46,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -59,11 +61,13 @@ import com.kennycason.kumo.nlp.FrequencyAnalyzer;
 import com.kennycason.kumo.nlp.tokenizer.WhiteSpaceWordTokenizer;
 import com.kennycason.kumo.palette.ColorPalette;
 import com.spring.javaclassS.common.ARIAUtil;
+import com.spring.javaclassS.common.JavaclassProvide;
 import com.spring.javaclassS.common.SecurityUtil;
 import com.spring.javaclassS.service.DbtestService;
 import com.spring.javaclassS.service.StudyService;
 import com.spring.javaclassS.vo.CrawlingVO;
 import com.spring.javaclassS.vo.CrimeVO;
+import com.spring.javaclassS.vo.KakaoAddressVO;
 import com.spring.javaclassS.vo.MailVO;
 import com.spring.javaclassS.vo.UserVO;
 
@@ -82,6 +86,9 @@ public class StudyController {
 	
 	@Autowired
 	BCryptPasswordEncoder passwordEncoder;
+	
+	@Autowired
+	JavaclassProvide javaclassProvide;
 	
 	
 	@RequestMapping(value = "/ajax/ajaxForm", method = RequestMethod.GET)
@@ -759,6 +766,7 @@ public class StudyController {
 		return array;
 	}
 	
+	/*
 	// 크롤링연습 처리(selenium) - 네이버 게임 목록 조회하기
 	@ResponseBody
 	@RequestMapping(value = "/crawling/naverGameSearch", method = RequestMethod.POST)
@@ -834,8 +842,49 @@ public class StudyController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		//System.out.println("vos : " + vos);
 		return vos;
+	}
+	*/
+  //크롤링연습 처리(selenium) - 네이버 게임 목록 조회하기
+	@ResponseBody
+	@RequestMapping(value = "/crawling/naverGameSearch", method = RequestMethod.POST)
+	public List<CrawlingVO> naverGameSearchPost(HttpServletRequest request, int page) {
+    List<CrawlingVO> vos = new ArrayList<CrawlingVO>();
+    try {
+      String realPath = request.getSession().getServletContext().getRealPath("/resources/crawling/");
+      System.setProperty("webdriver.chrome.driver", realPath + "chromedriver.exe");
+      WebDriver driver = new ChromeDriver();
+      driver.get("https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=게임");
+      WebElement btnMore = null;
+      for(int i=0; i<page; i++) {
+        // 페이지마다 새로고침된 HTML을 가져와서 Jsoup으로 파싱
+        Document document = Jsoup.parse(driver.getPageSource());
+        Elements titles = document.selectXpath("//*[@id=\"mflick\"]/div/div/div[" + (i+1) + "]/div/strong/a");
+        Elements jangres = document.selectXpath("//*[@id=\"mflick\"]/div/div/div[" + (i+1) + "]/div/dl/dd[1]");
+        Elements platforms = document.selectXpath("//*[@id=\"mflick\"]/div/div/div[" + (i+1) + "]/div/dl/dd[2]");
+        Elements chulsiils = document.selectXpath("//*[@id=\"mflick\"]/div/div/div[" + (i+1) + "]/div/dl/dd[3]");
+        Elements thumbnails = document.selectXpath("//*[@id=\"mflick\"]/div/div/div[" + (i+1) + "]/div/div/a");
+        for (int j = 0; j < titles.size(); j++) {
+          CrawlingVO vo = new CrawlingVO();
+          vo.setItem1(titles.get(j).text());
+          vo.setItem2(jangres.get(j).text());
+          vo.setItem3(platforms.get(j).text());
+          vo.setItem4(chulsiils.get(j).text());
+          vo.setItem5(thumbnails.get(j).outerHtml());
+          vos.add(vo);
+        }
+        // 페이지 넘기기 버튼 클릭
+        if (i < page - 1) {
+          btnMore = driver.findElement(By.xpath("//*[@id=\"main_pack\"]/section[5]/div[2]/div/div/div[4]/div/a[2]"));
+          btnMore.click();
+          try { Thread.sleep(2000);} catch (InterruptedException e) {}
+        }
+      }
+      driver.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return vos;
 	}
 
 	// wordcloud 연습
@@ -850,7 +899,7 @@ public class StudyController {
 		return studyService.analyzer(content);
 	}
 	
-	// wordcloud 연습처리2
+	// wordcloud 연습처리2(서버에 저장된 파일로 형태소 분석 처리하기)
 	@ResponseBody
 	@RequestMapping(value = "/wordcloud/analyzer2", method = RequestMethod.POST)
 	public Map<String, Integer> analyzer2Post(HttpServletRequest request) {
@@ -870,7 +919,7 @@ public class StudyController {
 		return studyService.analyzer(content);
 	}
 	
-	// wordcloud 연습처리3
+	// wordcloud 연습처리3(네이버 검색 결과로 형태소 분석처리하기)
 	@ResponseBody
 	@RequestMapping(value = "/wordcloud/analyzer3", method = RequestMethod.POST)
 	public Map<String, Integer> analyzer3Post(HttpServletRequest request,
@@ -890,13 +939,13 @@ public class StudyController {
 			str += select.html() + "\n";
 		}
 		
-		// 제외할 문자 처리하기
+		// 제외할 문자 처리하기(분석에서 제외할 문자처리하기)
 		String[] tempStrs = excludeWord.split("/");			// [특종]/[단독]
 		for(int k=0; k<tempStrs.length; k++) {
 			str = str.replace(tempStrs[i], "");
 		}
 		
-		// 파일로 저장하기
+		// 파일로 저장하기(분석문자로 처리된 텍스트형식의 내용물을 지정경로에 저장하기)
 		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/study/sample2.txt");
 		try (FileWriter writer = new FileWriter(realPath)) {
 			writer.write(str);
@@ -904,7 +953,7 @@ public class StudyController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return studyService.analyzer(str);
+		return studyService.analyzer(str);	// 텍스트문서를 형태소 분석후 다시 돌려주기
 	}
 	
 	// 워드클라우드 생성하여 이미지로 보관하기
@@ -937,6 +986,100 @@ public class StudyController {
 	
 	private InputStream getInputStream(String path) throws IOException {
 		return new FileInputStream(new File(path));
+	}
+	
+	@RequestMapping(value = "/random/randomForm", method = RequestMethod.GET)
+	public String randomFormGet() {
+		return "study/random/randomForm";
+	}
+	
+	// randomNumeric : 숫자를 랜덤하게 처리...
+	@ResponseBody
+	@RequestMapping(value = "/random/randomNumeric", method = RequestMethod.POST)
+	public String randomNumericPost() {
+		// (int) (Math.random()*(최대값-최소값+1)) + 최소값
+		return ((int) (Math.random()*(99999999-10000000+1)) + 10000000) + "";
+	}
+	
+	// randomUUID : 숫자와 문자를 소문자형식으로 랜덤하게 처리(16진수 32자리문자)...
+	@ResponseBody
+	@RequestMapping(value = "/random/randomUUID", method = RequestMethod.POST)
+	public String randomUUIDPost() {
+		return (UUID.randomUUID()) + "";
+	}
+	
+	// randomUUID : 숫자와 문자를 대/소문자 섞어서 랜덤하게 처리(일반 영숫자 xx자리)...
+	@ResponseBody
+	@RequestMapping(value = "/random/randomAlphaNumeric", method = RequestMethod.POST)
+	public String randomAlphaNumericPost() {
+		//String res = RandomStringUtils.randomAlphanumeric(32);
+		return RandomStringUtils.randomAlphanumeric(64);
+	}
+	
+	// 카카오맵 화면보기
+	@RequestMapping(value = "/kakao/kakaomap", method = RequestMethod.GET)
+	public String kakaomapGet() {
+		return "study/kakao/kakaomap";
+	}
+	
+	// 카카오맵 마커표시/저장 폼보기
+	@RequestMapping(value = "/kakao/kakaoEx1", method = RequestMethod.GET)
+	public String kakaoEx1Get() {
+		return "study/kakao/kakaoEx1";
+	}
+	
+	// 카카오맵 마커표시/저장 처리
+	@ResponseBody
+	@RequestMapping(value = "/kakao/kakaoEx1", method = RequestMethod.POST)
+	public String kakaoEx1Post(KakaoAddressVO vo) {
+		KakaoAddressVO searchVO = studyService.getKakaoAddressSearch(vo.getAddress());
+		
+		if(searchVO != null) return "0";
+		
+		studyService.setKakaoAddressInput(vo);
+		
+		return "1";
+	}
+	
+	// 카카오맵 MyDB에 저장된 지명검색
+	@RequestMapping(value = "/kakao/kakaoEx2", method = RequestMethod.GET)
+	public String kakaoEx2Get(Model model,
+			@RequestParam(name="address", defaultValue = "", required = false) String address
+		) {
+		System.out.println("address : " + address);
+		KakaoAddressVO vo = new KakaoAddressVO();
+		
+		List<KakaoAddressVO> addressVos = studyService.getKakaoAddressList();
+		
+		if(address.equals("")) {
+			vo.setAddress("청주그린컴퓨터");
+			vo.setLatitude(36.63508163115122);
+			vo.setLongitude(127.45948750459904);
+		}
+		else {
+			vo = studyService.getKakaoAddressSearch(address);
+		}
+		
+		model.addAttribute("addressVos", addressVos);
+		model.addAttribute("vo", vo);
+		
+		return "study/kakao/kakaoEx2";
+	}
+	
+	// 카카오맵 MyDB에 저장된 검색위치 삭제하기
+	@ResponseBody
+	@RequestMapping(value = "/kakao/kakaoAddressDelete", method = RequestMethod.POST)
+	public String kakaoAddressDeletePost(String address) {
+		return studyService.setKakaoAddressDelete(address) + "";
+	}
+	
+	// 카카오맵 : KakaoDB에 저장된 키워드검색후 MyDB에 저장하기
+	@RequestMapping(value = "/kakao/kakaoEx3", method = RequestMethod.GET)
+	public String kakaoEx3Get(Model model,
+			@RequestParam(name="address", defaultValue = "", required = false) String address
+		) {
+		model.addAttribute("address", address);
+		return "study/kakao/kakaoEx3";
 	}
 	
 }
