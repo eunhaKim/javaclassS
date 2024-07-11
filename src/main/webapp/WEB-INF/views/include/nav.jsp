@@ -38,6 +38,16 @@
 		  });
 	  }
   }
+  
+  // 네이버 로그아웃
+  function naverLogout() {
+	  var url = "${ctp}/member/naverLogout";
+		var childWindow = window.open(url, "naverWindow", "width=50, height=50, top=0, left=0");
+		setTimeout(() => {
+	  	if(childWindow != null) childWindow.close();		  
+	    location.href = "${ctp}/member/memberLogout";
+	  }, 1500);
+  }
 </script>
 <div class="w3-top">
   <div class="w3-bar w3-black w3-card">
@@ -68,12 +78,16 @@
 	      <div class="w3-dropdown-content w3-bar-block w3-card-4">
 	        <a href="${ctp}/study/random/randomForm" class="w3-bar-item w3-button">랜덤알파뉴메릭</a>
 	        <a href="${ctp}/study/kakao/kakaomap" class="w3-bar-item w3-button">카카오맵</a>
-	        <a href="${ctp}/study/ajax/ajaxForm" class="w3-bar-item w3-button">날씨API</a>
-	        <a href="${ctp}/study/restapi/restapi" class="w3-bar-item w3-button">캡차연습</a>
-	        <a href="${ctp}/study/password/password" class="w3-bar-item w3-button">QR Code</a>
-	        <a href="${ctp}/study/mail/mailForm" class="w3-bar-item w3-button">웹 차트</a>
-	        <a href="${ctp}/study/fileUpload/fileUpload" class="w3-bar-item w3-button">트랜잭션</a>
+	        <a href="${ctp}/study/weather/weatherForm" class="w3-bar-item w3-button">날씨API</a>
+	        <a href="${ctp}/study/captcha/captchaForm" class="w3-bar-item w3-button">캡차연습</a>
+	        <a href="${ctp}/study/qrCode/qrCodeForm" class="w3-bar-item w3-button">QR Code</a>
+	        <a href="${ctp}/study/thumbnail/thumbnailForm" class="w3-bar-item w3-button">썸네일 연습</a>
+	        <a href="${ctp}/study/chart/chartForm" class="w3-bar-item w3-button">웹 차트 1</a>
+	        <a href="${ctp}/study/chart2/chart2Form" class="w3-bar-item w3-button">웹 차트 2</a>
+	        <a href="${ctp}/study/validator/validatorForm" class="w3-bar-item w3-button">Validator</a>
+	        <a href="${ctp}/study/transaction/transactionForm" class="w3-bar-item w3-button">트랜잭션</a>
 	        <a href="#" class="w3-bar-item w3-button">스케줄러</a>
+	        <a href="${ctp}/study/csv/csvForm" class="w3-bar-item w3-button">CSV를MySQL로</a>
 	      </div>
 	    </div>
 	    <div class="w3-dropdown-hover w3-hide-small">
@@ -101,6 +115,7 @@
 	      <div class="w3-dropdown-content w3-bar-block w3-card-4">
 			    <a href="${ctp}/member/memberLogout" class="w3-bar-item w3-button w3-padding-large w3-hide-small">일반 Logout</a>
 			    <a href="javascript:kakaoLogout()" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Kakao Logout</a>
+			    <a href="javascript:naverLogout()" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Naver Logout</a>
 			  </div>
 			</div>
     </c:if>

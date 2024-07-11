@@ -4,6 +4,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.Graphics2D;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,9 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.imageio.ImageIO;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -42,7 +48,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -65,10 +74,13 @@ import com.spring.javaclassS.common.JavaclassProvide;
 import com.spring.javaclassS.common.SecurityUtil;
 import com.spring.javaclassS.service.DbtestService;
 import com.spring.javaclassS.service.StudyService;
+import com.spring.javaclassS.vo.ChartVO;
 import com.spring.javaclassS.vo.CrawlingVO;
 import com.spring.javaclassS.vo.CrimeVO;
 import com.spring.javaclassS.vo.KakaoAddressVO;
 import com.spring.javaclassS.vo.MailVO;
+import com.spring.javaclassS.vo.QrCodeVO;
+import com.spring.javaclassS.vo.TransactionVO;
 import com.spring.javaclassS.vo.UserVO;
 
 @Controller
@@ -1080,6 +1092,377 @@ public class StudyController {
 		) {
 		model.addAttribute("address", address);
 		return "study/kakao/kakaoEx3";
+	}
+	
+	// 카카오맵 : 지명으로 위치검색후 카카오DB에 저장된 위치를 검색하여 주변정보 보여주기
+	@RequestMapping(value = "/kakao/kakaoEx4", method = RequestMethod.GET)
+	public String kakaoEx4Get(Model model,
+			@RequestParam(name="address", defaultValue = "", required = false) String address
+			) {
+		model.addAttribute("address", address);
+		return "study/kakao/kakaoEx4";
+	}
+	
+	// CSV파일을 MySQL파일로 변환하기폼보기
+	@RequestMapping(value = "/csv/csvForm", method = RequestMethod.GET)
+	public String csvFormGet() {
+		return "study/csv/csvForm";
+	}
+	
+	// CSV파일을 MySQL파일로 변환하기
+	@ResponseBody
+	@RequestMapping(value = "/csv/csvForm", method = RequestMethod.POST, produces="application/text; charset=utf8")
+	public String csvFormPost(MultipartFile fName, HttpServletRequest request) throws IOException {
+		return studyService.fileCsvToMysql(fName);
+	}
+	
+	// CSV파일을 MySQL파일로 삭제하기
+	@ResponseBody
+	@RequestMapping(value = "/csv/csvDeleteTable", method = RequestMethod.POST)
+	public String csvDeleteTablePost(String csvTable) throws IOException {
+		return studyService.setCsvTableDelete(csvTable) + "";
+	}
+	
+	// 날씨 API 폼
+	@RequestMapping(value = "/weather/weatherForm", method = RequestMethod.GET)
+	public String weatherFormGet(Model model) {
+		List<KakaoAddressVO> jiyukVos = studyService.getKakaoAddressList();
+		model.addAttribute("jiyukVos", jiyukVos);
+		return "study/weather/weatherForm";
+	}
+	
+	// 캡차 연습하기 폼
+	@RequestMapping(value = "/captcha/captchaForm", method = RequestMethod.GET)
+	public String captchaFormGet() {
+		return "redirect:/study/captcha/captchaImage";
+	}
+	
+	// 캡차 연습하기 처리
+	@RequestMapping(value = "/captcha/captchaImage", method = RequestMethod.GET)
+	public String captchaImageGet(HttpSession session, HttpServletRequest request, Model model) {
+		// 시스템에 설정된 폰트 출력해보기
+		/*
+		Font[] fontList = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
+		for(Font f : fontList) {
+			System.out.println(f.getName());
+		}
+		*/
+		
+		try {
+			// 알파뉴메릭문자 5개를 가져온다.
+			String randomString = RandomStringUtils.randomAlphanumeric(5);
+			System.out.println("randomString : " + randomString);
+			session.setAttribute("sCaptcha", randomString);
+			
+			Font font = new Font("Jokerman", Font.ITALIC, 30);
+			FontRenderContext frc = new FontRenderContext(null, true, true);
+			Rectangle2D bounds = font.getStringBounds(randomString, frc);
+			int w = (int) bounds.getWidth();
+			int h = (int) bounds.getHeight();
+			
+			// 이미지로 생성
+			BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_BGR);
+			Graphics2D g = image.createGraphics();
+			
+			g.fillRect(0, 0, w, h);
+			g.setColor(new Color(0, 156, 240));
+			g.setFont(font);
+			// 각종 랜더링 명령어에 의한 chptcha문자 작업.....
+			g.drawString(randomString, (float)bounds.getX(), (float)-bounds.getY());
+			g.dispose();
+			
+			String realPath = request.getSession().getServletContext().getRealPath("/resources/data/study/");
+			int temp = (int) (Math.random()*5) + 1;
+			String captchaImage = "captcha" + temp + ".png";
+			
+			ImageIO.write(image, "png", new File(realPath + captchaImage));
+			model.addAttribute("captchaImage", captchaImage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "study/captcha/captchaForm";
+	}
+	
+	// 캡차 문자 확인하기
+	@ResponseBody
+	@RequestMapping(value = "/captcha/captcha", method = RequestMethod.POST)
+	public String captchaPost(HttpSession session, String strCaptcha) {
+		if(strCaptcha.equals(session.getAttribute("sCaptcha").toString())) return "1";
+		else return "0";
+	}
+	
+	// QR Code 연습 폼
+	@RequestMapping(value = "/qrCode/qrCodeForm", method = RequestMethod.GET)
+	public String qrCodeCreateGet() {
+		return "study/qrCode/qrCodeForm";
+	}
+	
+	// QR Code 생성하기
+	@ResponseBody
+	@RequestMapping(value = "/qrCode/qrCodeCreate", method = RequestMethod.POST)
+	public String qrCodeCreatePost(HttpServletRequest request) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/qrCode/");
+		return studyService.setQrCodeCreate(realPath);
+	}
+	
+	// QR Code 개인정보 QR 코드로 생성하기 폼보기
+	@RequestMapping(value = "/qrCode/qrCodeEx1", method = RequestMethod.GET)
+	public String qrCodeEx1Get() {
+		return "study/qrCode/qrCodeEx1";
+	}
+	
+	// QR Code 개인정보 QR 코드로 생성하기
+	@ResponseBody
+	@RequestMapping(value = "/qrCode/qrCodeCreate1", method = RequestMethod.POST, produces="application/text; charset=utf-8")
+	public String qrCodeCreate1Post(HttpServletRequest request, QrCodeVO vo) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/qrCode/");
+		return studyService.setQrCodeCreate1(realPath, vo);
+	}
+	
+	// QR Code 소개사이트 주소 생성하기 폼보기
+	@RequestMapping(value = "/qrCode/qrCodeEx2", method = RequestMethod.GET)
+	public String qrCodeEx2Get() {
+		return "study/qrCode/qrCodeEx2";
+	}
+	
+	// QR Code 소개사이트 주소 생성하기
+	@ResponseBody
+	@RequestMapping(value = "/qrCode/qrCodeCreate2", method = RequestMethod.POST, produces="application/text; charset=utf-8")
+	public String qrCodeCreate2Post(HttpServletRequest request, QrCodeVO vo) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/qrCode/");
+		return studyService.setQrCodeCreate2(realPath, vo);
+	}
+	
+	// QR Code 티켓예매 폼보기
+	@RequestMapping(value = "/qrCode/qrCodeEx3", method = RequestMethod.GET)
+	public String qrCodeEx3Get() {
+		return "study/qrCode/qrCodeEx3";
+	}
+	
+	// QR Code 티켓예매 생성하기
+	@ResponseBody
+	@RequestMapping(value = "/qrCode/qrCodeCreate3", method = RequestMethod.POST, produces="application/text; charset=utf-8")
+	public String qrCodeCreate3Post(HttpServletRequest request, QrCodeVO vo) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/qrCode/");
+		return studyService.setQrCodeCreate3(realPath, vo);
+	}
+	
+	// QR Code 티켓예매 폼보기(DB저장 검색)
+	@RequestMapping(value = "/qrCode/qrCodeEx4", method = RequestMethod.GET)
+	public String qrCodeEx4Get() {
+		return "study/qrCode/qrCodeEx4";
+	}
+	
+	// QR Code 티켓예매 생성하기(DB저장 검색)
+	@ResponseBody
+	@RequestMapping(value = "/qrCode/qrCodeCreate4", method = RequestMethod.POST, produces="application/text; charset=utf-8")
+	public String qrCodeCreate4Post(HttpServletRequest request, QrCodeVO vo) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/qrCode/");
+		return studyService.setQrCodeCreate4(realPath, vo);
+	}
+	
+	// QR Code명 검색하기(DB저장 검색)
+	@ResponseBody
+	@RequestMapping(value = "/qrCode/qrCodeSearch", method = RequestMethod.POST)
+	public QrCodeVO qrCodeSearchPost(String qrCode) {
+		return studyService.getQrCodeSearch(qrCode);
+	}
+	
+	// 썸네일 연습 폼보기
+	@RequestMapping(value = "/thumbnail/thumbnailForm", method = RequestMethod.GET)
+	public String thumbnailFormGet() {
+		return "study/thumbnail/thumbnailForm";
+	}
+	
+	// 썸네일 연습 사진처리
+	@ResponseBody
+	@RequestMapping(value = "/thumbnail/thumbnailForm", method = RequestMethod.POST)
+	public String thumbnailFormPost(MultipartFile file) {
+		return studyService.setThumbnailCreate(file);
+	}
+	
+	// 썸네일 전체 리스트 이미지 보기
+	@RequestMapping(value = "/thumbnail/thumbnailResult", method = RequestMethod.GET)
+	public String thumbnailResultGet(HttpServletRequest request, Model model) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/thumbnail/");
+		String[] files = new File(realPath).list();
+		
+		model.addAttribute("files", files);
+		model.addAttribute("fileCount", (files.length / 2));
+		
+		return "study/thumbnail/thumbnailResult";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/thumbnail/thumbnailDelete", method = RequestMethod.POST)
+	public String thumbDeletePost(HttpServletRequest request, String file) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/thumbnail/");
+		
+		String res = "0";
+		File fName = new File(realPath + file);
+		File sName = new File(realPath + "s_" + file);
+		if(fName.exists()) {
+			fName.delete();
+			sName.delete();
+			res = "1";
+		}
+		
+		return res;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/thumbnail/thumbnailDeleteAll", method = RequestMethod.POST)
+	public String thumbnailDeleteAllPost(HttpServletRequest request, String file) {
+		String realPath = request.getSession().getServletContext().getRealPath("/resources/data/thumbnail/");
+		
+		String res = "0";
+		File targetFolder = new File(realPath);
+		if(!targetFolder.exists()) return "0";
+		
+		File[] files = targetFolder.listFiles();
+		
+		if(files.length != 0) {
+			for(File f : files) {
+				if(!f.isDirectory()) f.delete();
+			}
+			res = "1";
+		}
+		
+		return res;
+	}
+	
+	@RequestMapping(value = "/chart/chartForm", method = RequestMethod.GET)
+	public String chartFormGet(Model model,
+			@RequestParam(name="part", defaultValue="barVChart", required=false) String part) {
+		model.addAttribute("part", part);
+		return "study/chart/chartForm";
+	}
+	
+	@RequestMapping(value = "/chart2/chart2Form", method = RequestMethod.GET)
+	public String chart2FormGet(Model model,
+			@RequestParam(name="part", defaultValue="barVChart", required=false) String part) {
+		model.addAttribute("part", part);
+		return "study/chart2/chart2Form";
+	}
+	
+	@RequestMapping(value = "/chart2/googleChart2", method = RequestMethod.POST)
+	public String googleChart2Post(Model model, ChartVO vo) {
+		model.addAttribute("vo", vo);
+		return "study/chart2/chart2Form";
+	}
+	
+	// 최근 방문자수 선형 차트로 표시하기
+	@RequestMapping(value = "/chart2/googleChart2Recently", method = RequestMethod.GET)
+	public String googleChart2RecentlyGet(Model model, ChartVO vo) {
+		//System.out.println("part : " + vo.getPart());
+		
+		List<ChartVO> vos = null;
+		if(vo.getPart().equals("lineChartVisitCount")) {
+			vos = studyService.getRecentlyVisitCount(1);
+			// vos자료를 차트에 표시처리가 잘 되지 않을경우에는 각각의 자료를 다시 편집해서 차트로 보내줘야 한다.
+			String[] visitDates = new String[7];
+			int[] visitCounts = new int[7];
+			
+			for(int i=0; i<7; i++) {
+				visitDates[i] = vos.get(i).getVisitDate();
+				visitCounts[i] = vos.get(i).getVisitCount();
+			}
+			
+			model.addAttribute("part", vo.getPart());
+			model.addAttribute("xTitle", "방문날짜");
+			model.addAttribute("regend", "하루 총 방문자수");
+			
+			model.addAttribute("visitDates", visitDates);
+			model.addAttribute("visitCounts", visitCounts);
+			model.addAttribute("title", "최근 7일간 방문횟수");
+			model.addAttribute("subTitle", "(최근 7일간 방문한 해당일자의 방문자 총수를 표시합니다.");
+		}
+		return "study/chart2/chart2Form";
+	}
+	// 많이찾은 방문자 7명 차트로 표시하기
+	@RequestMapping(value = "/chart2/googleChart2Recently2", method = RequestMethod.GET)
+	public String googleChart2Recently2Get(Model model, ChartVO vo) {
+		//System.out.println("part : " + vo.getPart());
+		List<ChartVO> vos = null;
+		/*if(vo.getPart().equals("barChartVisitCount2")) {*/
+			vos = studyService.getRecentlyVisitCount(2);
+			// vos자료를 차트에 표시처리가 잘 되지 않을경우에는 각각의 자료를 다시 편집해서 차트로 보내줘야 한다.
+			String[] visitDates = new String[7];
+			int[] visitCounts = new int[7];
+			
+			for(int i=0; i<7; i++) {
+				visitDates[i] = vos.get(i).getVisitDate();
+				visitCounts[i] = vos.get(i).getVisitCount();
+			}
+			//System.out.println("vos : " + vos);
+			model.addAttribute("part", vo.getPart());
+			model.addAttribute("xTitle", "방문날짜");
+			model.addAttribute("legend", "하루 총 방문자수");
+			
+			model.addAttribute("visitDates", visitDates);
+			model.addAttribute("visitCounts", visitCounts);
+			model.addAttribute("title", "최근 가장 많이 방문한 회원 7명");
+			model.addAttribute("subTitle", "(가장 많이 방문한 방문자 7인의 방문횟수를 표시합니다.");
+	/* } */
+		
+		return "study/chart2/chart2Form";
+	}
+
+	// BackEnd Check를 위한 validator 연습하기 폼
+	@RequestMapping(value = "/validator/validatorForm", method = RequestMethod.GET)
+	public String validatorFormGet(Model model) {
+		List<TransactionVO> vos = studyService.getTransactionList();
+		
+		model.addAttribute("vos", vos);
+		return "study/validator/validatorForm";
+	}
+	// BackEnd Check를 위한 validator 연습하기
+	@RequestMapping(value = "/validator/validatorForm", method = RequestMethod.POST)
+	public String validatorFormPost(@Validated TransactionVO vo, BindingResult bindingResult) {
+
+		if(bindingResult.hasFieldErrors()) {
+			System.out.println("error 발생");
+			System.out.println("에러 : " + bindingResult);
+			return "redirect:/message/backendCheckNo";
+		}
+		
+		int res = studyService.setTransactionUserInput(vo);
+		
+		if(res != 0) return "redirect:/message/transactionUserInputOk?tempFlag=validator";
+		else return "redirect:/message/transactionUserInputNo";
+	}
+	
+	// Transaction(트랜잭션)을 위한 연습 폼
+	@RequestMapping(value = "/transaction/transactionForm", method = RequestMethod.GET)
+	public String transactionFormGet(Model model) {
+		List<TransactionVO> vos = studyService.getTransactionList();
+		List<TransactionVO> vos2 = studyService.getTransactionList2();
+		
+		model.addAttribute("vos", vos);
+		model.addAttribute("vos2", vos2);
+		return "study/transaction/transactionForm";
+	}
+	
+	@Transactional
+	@RequestMapping(value = "/transaction/transactionForm", method = RequestMethod.POST)
+	public String transactionFormPost(@Validated TransactionVO vo, BindingResult bindingResult) {
+		if(bindingResult.hasFieldErrors()) {
+			System.out.println("에러 : " + bindingResult);
+			return "redirect:/message/backendCheckNo";
+		}
+		
+		studyService.setTransactionUser1Input(vo);
+		studyService.setTransactionUser2Input(vo);
+		
+		return "redirect:/message/transactionUserInputOk?tempFlag=transaction";
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/transaction/transaction2", method = RequestMethod.POST)
+	public String transaction2Post(TransactionVO vo) {
+		studyService.setTransactionUserTotalInput(vo);
+		
+		return "1";
 	}
 	
 }

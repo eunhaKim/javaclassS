@@ -140,7 +140,7 @@
           <c:set var="fNames" value="${fn:split(vo.FName,'/')}"/>
           <c:set var="fSNames" value="${fn:split(vo.FSName,'/')}"/>
           <c:forEach var="fName" items="${fNames}" varStatus="st">
-            <a href="${ctp}/pds/${fSNames[st.index]}" download="${fName}" onclick="downNumCheck(${vo.idx})">${fName}</a><br/>
+            <a href="${ctp}/resources/data/pds/${fSNames[st.index]}" download="${fName}" onclick="downNumCheck(${vo.idx})">${fName}</a><br/>
           </c:forEach>
           (<fmt:formatNumber value="${vo.FSize/1024}" pattern="#,##0" />KByte)
         </td>

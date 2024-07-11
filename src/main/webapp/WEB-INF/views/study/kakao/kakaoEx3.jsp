@@ -5,7 +5,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>kakaoEx2.jsp(KakaoDB에 저장된 키워드검색)</title>
+  <title>kakaoEx3.jsp(KakaoDB에 저장된 키워드검색)</title>
   <jsp:include page="/WEB-INF/views/include/bs4.jsp" />
   <script>
   function addressSave() {
