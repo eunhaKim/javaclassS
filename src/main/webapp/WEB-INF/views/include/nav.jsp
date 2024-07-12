@@ -84,8 +84,8 @@
 	        <a href="${ctp}/study/thumbnail/thumbnailForm" class="w3-bar-item w3-button">썸네일 연습</a>
 	        <a href="${ctp}/study/chart/chartForm" class="w3-bar-item w3-button">웹 차트 1</a>
 	        <a href="${ctp}/study/chart2/chart2Form" class="w3-bar-item w3-button">웹 차트 2</a>
-	        <a href="${ctp}/study/validator/validatorForm" class="w3-bar-item w3-button">Validator</a>
-	        <a href="${ctp}/study/transaction/transactionForm" class="w3-bar-item w3-button">트랜잭션</a>
+	        <a href="${ctp}/study/validator/validatorForm" class="w3-bar-item w3-button">Validator 연습</a>
+	        <a href="${ctp}/study/transaction/transactionForm" class="w3-bar-item w3-button">트랜잭션 연습</a>
 	        <a href="#" class="w3-bar-item w3-button">스케줄러</a>
 	        <a href="${ctp}/study/csv/csvForm" class="w3-bar-item w3-button">CSV를MySQL로</a>
 	      </div>
@@ -96,7 +96,7 @@
 	        <a href="${ctp}/" class="w3-bar-item w3-button">일정관리</a>
 	        <a href="${ctp}/" class="w3-bar-item w3-button">Photo Gallery</a>
 	        <a href="${ctp}/" class="w3-bar-item w3-button">DB 채팅</a>
-	        <a href="${ctp}/" class="w3-bar-item w3-button">웹소켓 채팅</a>
+	        <a href="${ctp}/webSocket/webSocket" class="w3-bar-item w3-button">웹소켓 채팅</a>
 	        <a href="${ctp}/member/memberList" class="w3-bar-item w3-button">회원리스트</a>
 	        <a href="${ctp}/member/memberPwdCheck/p" class="w3-bar-item w3-button">비밀번호변경</a>
 	        <a href="${ctp}/member/memberPwdCheck/i" class="w3-bar-item w3-button">회원정보수정</a>

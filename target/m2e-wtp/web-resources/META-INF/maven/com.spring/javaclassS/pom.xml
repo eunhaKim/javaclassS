@@ -214,7 +214,7 @@
 	    <version>1.5</version>
 		</dependency>
 		
-		<!-- 웹크롤링을 하기위한 라이브러리(jsoup) -->
+		<!-- 웹크롤링를 하기위한 라이브러리(jsoup) -->
 		<!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
 		<dependency>
 	    <groupId>org.jsoup</groupId>
@@ -229,7 +229,7 @@
 	    <version>4.18.1</version>
 		</dependency>
 		
-		<!-- wordcloud를 위한 형태소 분석 라이브러리 -->
+		<!-- WordCloud를 위한 형태소 분석 라이브러리 -->	
 		<!-- https://mvnrepository.com/artifact/com.kennycason/kumo-core -->
 		<dependency>
 	    <groupId>com.kennycason</groupId>
@@ -237,7 +237,7 @@
 	    <version>1.13</version>
 		</dependency>
 		
-		<!-- 캡차 사용을 위한 라이브러리 -->
+		<!-- 캡차 사용을 위한 라이브러리(램덤 영숫자 관리도 한다.) -->
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
 	    <groupId>org.apache.commons</groupId>
@@ -245,8 +245,7 @@
 	    <version>3.12.0</version>
 		</dependency>
 		
-		<!-- QR코드 생성을 위한 구글 라이브러리(zxing) -->
-		<!-- https://mvnrepository.com/artifact/com.google.zxing/core -->
+		<!-- QR Code 생성을 위한 구글 라이브러리(zxing) -->
 		<!-- https://mvnrepository.com/artifact/com.google.zxing/javase -->
 		<dependency>
 	    <groupId>com.google.zxing</groupId>
@@ -254,34 +253,44 @@
 	    <version>3.5.1</version>
 		</dependency>
 
-		<!-- 썸네일 이미지를 위한 라이브러리 (Thumbnailator) -->
+		<!-- 썸네일 이미지를 위한 라이브러리(thumbnailator) -->
 		<!-- https://mvnrepository.com/artifact/net.coobird/thumbnailator -->
 		<dependency>
 	    <groupId>net.coobird</groupId>
 	    <artifactId>thumbnailator</artifactId>
 	    <version>0.4.20</version>
 		</dependency>
-					
-		<!-- BackEnd 체크를 위한 validator라이브러리(data검증: 유효성검사) -->	
+		
+		<!-- BackEnd 체크를 위한 validator라이브러리(data검증:유효성검사) -->
 		<!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
 		<dependency>
 	    <groupId>org.hibernate.validator</groupId>
 	    <artifactId>hibernate-validator</artifactId>
 	    <version>6.2.0.Final</version>
 		</dependency>
-		
-		<!-- Transaction(트랜젝션)처리를 위한 라이브러리(스프링 프레임워크의 버젼과 통일시켜준다.) -->
+
+		<!-- Transaction(트랜잭션)처리를 위한 라이브러리(스프링 프레임워크의 버젼과 통일시켜준다.) -->
 		<!-- https://mvnrepository.com/artifact/org.springframework/spring-tx -->
 		<dependency>
 	    <groupId>org.springframework</groupId>
 	    <artifactId>spring-tx</artifactId>
 	    <version>4.3.14.RELEASE</version>
 		</dependency>
-				
-						
-
+		
+		<!-- WebSocket(Spring WebSocket)을 사용하기위한 라이브러리 주입하기(2개) -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-websocket</artifactId>
+      <version>${org.springframework-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.websocket</groupId>
+      <artifactId>javax.websocket-api</artifactId>
+      <version>1.1</version>
+    </dependency>
 
 		
+
 		
 		
 		
