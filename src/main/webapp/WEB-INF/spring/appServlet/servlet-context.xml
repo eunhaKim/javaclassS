@@ -25,12 +25,13 @@
 	<resources mapping="/member/**" location="/resources/data/member/" />
 	<resources mapping="/board/**" location="/resources/data/board/" />
 	<resources mapping="/pds/**" location="/resources/data/pds/" />
-	<resources mapping="/photo/**" location="/resources/data/photo/" />
+	<resources mapping="/photoGallery/**" location="/resources/data/photoGallery/" />
 	<resources mapping="/fileUpload/**" location="/resources/data/fileUpload/" />
 	<resources mapping="/ckeditor/**" location="/resources/ckeditor/" />
 	<resources mapping="/study/**" location="/resources/data/study/" />
 	<resources mapping="/qrCode/**" location="/resources/data/qrCode/" />
 	<resources mapping="/thumbnail/**" location="/resources/data/thumbnail/" />
+	<resources mapping="/product/**" location="/resources/data/dbShop/product/" />
 
 	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
 	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">

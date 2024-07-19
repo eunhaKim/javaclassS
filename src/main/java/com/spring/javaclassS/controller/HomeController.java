@@ -61,8 +61,10 @@ public class HomeController {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
 		oFileName = sdf.format(date) + "_" + oFileName;
 		
+		byte[] bytes = upload.getBytes();
 		FileOutputStream fos = new FileOutputStream(new File(realPath + oFileName));
-		fos.write(upload.getBytes());
+		//fos.write(upload.getBytes());
+		fos.write(bytes);
 		
 		PrintWriter out = response.getWriter();
 		String fileUrl = request.getContextPath() + "/data/ckeditor/" + oFileName;

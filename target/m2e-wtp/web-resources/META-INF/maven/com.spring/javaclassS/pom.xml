@@ -261,6 +261,13 @@
 	    <version>0.4.20</version>
 		</dependency>
 		
+		<!-- imgscalr-lib(이미지 크기를 변경(잘라냄)시켜서 저장하는 라이브러리) 썸네일과 비슷한 작업처리이다. -->
+		<dependency>
+		  <groupId>org.imgscalr</groupId>
+		  <artifactId>imgscalr-lib</artifactId>
+		  <version>4.2</version>
+		</dependency>
+		
 		<!-- BackEnd 체크를 위한 validator라이브러리(data검증:유효성검사) -->
 		<!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
 		<dependency>
@@ -288,9 +295,9 @@
       <artifactId>javax.websocket-api</artifactId>
       <version>1.1</version>
     </dependency>
-    
-    <!-- 스케줄러 라이브러리 추가(3개) -->
-    <!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
+
+		<!-- 스케줄러 라이브러리 추가(3개) -->
+		<!-- https://mvnrepository.com/artifact/org.quartz-scheduler/quartz -->
 		<dependency>
 	    <groupId>org.quartz-scheduler</groupId>
 	    <artifactId>quartz</artifactId>
@@ -308,8 +315,6 @@
 	    <artifactId>HikariCP-java7</artifactId>
 	    <version>2.4.13</version>
 		</dependency>
-				
-		    
 
 		
 
