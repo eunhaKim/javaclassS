@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,10 +77,12 @@ import com.spring.javaclassS.common.JavaclassProvide;
 import com.spring.javaclassS.common.SecurityUtil;
 import com.spring.javaclassS.service.DbtestService;
 import com.spring.javaclassS.service.StudyService;
+import com.spring.javaclassS.vo.BicycleVO;
 import com.spring.javaclassS.vo.ChartVO;
 import com.spring.javaclassS.vo.CrawlingVO;
 import com.spring.javaclassS.vo.CrimeVO;
 import com.spring.javaclassS.vo.DbPayMentVO;
+import com.spring.javaclassS.vo.ExchangeRateVO;
 import com.spring.javaclassS.vo.KakaoAddressVO;
 import com.spring.javaclassS.vo.MailVO;
 import com.spring.javaclassS.vo.QrCodeVO;
@@ -1042,16 +1046,13 @@ public class StudyController {
 		return "study/kakao/kakaoEx1";
 	}
 	
-	// 카카오맵 마커표시/저장 처리
+	// 카카오맵 마커표시 저장 /이미지 저장 처리
 	@ResponseBody
 	@RequestMapping(value = "/kakao/kakaoEx1", method = RequestMethod.POST)
-	public String kakaoEx1Post(KakaoAddressVO vo) {
+	public String kakaoEx1ImagePost(KakaoAddressVO vo) {
 		KakaoAddressVO searchVO = studyService.getKakaoAddressSearch(vo.getAddress());
-		
 		if(searchVO != null) return "0";
-		
 		studyService.setKakaoAddressInput(vo);
-		
 		return "1";
 	}
 	
@@ -1060,7 +1061,7 @@ public class StudyController {
 	public String kakaoEx2Get(Model model,
 			@RequestParam(name="address", defaultValue = "", required = false) String address
 		) {
-		System.out.println("address : " + address);
+		//System.out.println("address : " + address);
 		KakaoAddressVO vo = new KakaoAddressVO();
 		
 		List<KakaoAddressVO> addressVos = studyService.getKakaoAddressList();
@@ -1517,5 +1518,60 @@ public class StudyController {
   	session.removeAttribute("sPayMentVO");
   	return "study/payment/paymentOk";
   }
+
+  // 환율계산하기 폼보기
+  @RequestMapping(value = "/exchangeRate/exchangeRate", method = RequestMethod.GET)
+  public String exchangeRateGet(Model model,
+  		@RequestParam(name="searchdate", defaultValue="",required=false) String searchdate) {
+  	if(searchdate.equals("")) {
+  		//searchdate = java.time.LocalDate.now();
+			Date today = new Date();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			searchdate = sdf.format(today);
+  	}
+  	List<ExchangeRateVO> unitVos = studyService.getExchangeRateUnit(searchdate);
+  	model.addAttribute("searchdate", searchdate);
+  	model.addAttribute("unitVos", unitVos);
+  	//System.out.println(unitVos);
+  	return "study/exchangeRate/exchangeRate";
+  }
+  
+  // 환율api에서 가져와서 지정된 날짜의 환율 보여주기
+  @ResponseBody
+  @RequestMapping(value="/exchangeRate/exchangeRate", method=RequestMethod.POST, produces="application/text; charset=utf-8")
+  public String exchangeRatePost(String searchdate,
+  		@RequestParam(name = "receiveCountry", defaultValue = "", required = false) String receiveCountry){
+    return studyService.getCurrencyRate(receiveCountry, searchdate);
+  }
+  
+  // 환율api에서 환률가져와서 송금달라입력시 해당 송금액을 원화로 계산한 결과를 리턴해주기
+  @ResponseBody
+  @RequestMapping(value="/exchangeRate/exchangeRateCompute", method=RequestMethod.POST, produces="application/text; charset=utf-8")
+  public String exchangeRateComputePost(String searchdate,
+  		@RequestParam(name = "receiveCountry", defaultValue = "", required = false) String receiveCountry,
+  		@RequestParam(name = "sendAmount", defaultValue = "0", required = false) String sendAmount
+  	){
+  	return studyService.getCurrencyRateCompute(receiveCountry, sendAmount, searchdate);
+  }
 	
+  // 전국 자전거 대여소(공공API) 폼보기
+  @RequestMapping(value = "/bicycle/bicycle", method = RequestMethod.GET)
+  public String bicycleGet() {
+  	return "study/bicycle/bicycle";
+  }
+  
+  // 전국 자전거 대여소 조회 처리1
+  @ResponseBody
+  @RequestMapping(value = "/bicycle/bicycle", method = RequestMethod.POST)
+  public List<BicycleVO> bicyclePost() {
+  	return studyService.getBicycleData();
+  }
+  
+  // 서울시 공공자전거 실시간 대여정보 처리
+  @ResponseBody
+  @RequestMapping(value = "/bicycle/bicycle2", method = RequestMethod.POST)
+  public List<BicycleVO> bicycle2Post() {
+  	return studyService.getBicycleData2();
+  }
+  
 }

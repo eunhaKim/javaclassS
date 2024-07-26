@@ -71,6 +71,8 @@
 	        <a href="${ctp}/study/crawling/jsoup" class="w3-bar-item w3-button">크롤링(jsoup)</a>
 	        <a href="${ctp}/study/crawling/selenium" class="w3-bar-item w3-button">크롤링(selenium)</a>
 	        <a href="${ctp}/study/wordcloud/wordcloudForm" class="w3-bar-item w3-button">WordCloud</a>
+	        <a href="${ctp}/study/exchangeRate/exchangeRate" class="w3-bar-item w3-button">환율계산하기</a>
+	        <a href="${ctp}/study/bicycle/bicycle" class="w3-bar-item w3-button">전국자전거대여소</a>
 	      </div>
 	    </div>
 	    <div class="w3-dropdown-hover w3-hide-small">

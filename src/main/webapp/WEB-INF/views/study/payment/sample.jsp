@@ -11,7 +11,7 @@
   <script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
   <script>
     var IMP = window.IMP;
-    IMP.init("imp30131365");
+    IMP.init("imp87432616");
 
     //function requestPay() {
       IMP.request_pay(

@@ -132,3 +132,41 @@ create table dbBaesong (
 );
 desc dbBaesong;
 drop table dbBaesong;
+
+select count(*) from dbOrder where date(orderDate) = substring(now(),1,10);
+select count(baesong.idx) from dbOrder oder join dbBaesong baesong using(orderIdx), member2 member where member.mid = 'admin' and date(orderDate) = substring(now(),1,10);
+SELECT oder.*,baesong.* from dbOrder oder join dbBaesong baesong using(orderIdx) 
+      where baesong.mid='admin' and date(orderDate) = substring(now(),1,10) order by baesong.idx desc limit 0,10;
+      
+
+select * from dbOrder
+select count(*) from dbOrder
+select count(*) from dbOrder where date(orderDate) < substring(now(),1,10);
+SELECT count(*) from dbOrder a join dbBaesong b using(orderIdx) 
+        where b.mid='cjsk1126' and date(orderDate) >= date('2024-07-01') and date(orderDate) <= date('2024-07-17') order by orderDate desc;
+SELECT count(*) from dbOrder o, dbBaesong b where o.orderIdx = b.orderIdx 
+        and b.mid='cjsk1126' and date(o.orderDate) >= date('2024-07-01') and date(o.orderDate) <= date('2024-07-17') order by o.orderDate desc;
+SELECT count(*) from dbOrder o, dbBaesong b where o.orderIdx = b.orderIdx 
+        and b.mid='cjsk1126' and date_format(o.orderDate,'%Y-%m-%d') <= '2024-07-24';
+
+select * from dbOrder where date_format(orderDate,'%Y-%m-%d') <= '2024-07-24';
+select * from dbOrder where orderDate <= '2024-07-24';
+select * from dbOrder where orderDate >= '2024-07-11' and orderDate <= '2024-07-24';
+select count(*) from dbOrder where orderDate >= '2024-01-11' and orderDate <= '2024-07-24';
+
+
+select date(now());
+select date('2024-07-24');
+select o.*,b.* from dbOrder o join dbBaesong b using(orderIdx);
+select o.*,b.* from dbOrder o join dbBaesong b using(orderIdx) where o.mid = 'cjsk1126';
+select o.*,b.* from dbOrder o join dbBaesong b using(orderIdx) where date(o.orderDate) >= date('2024-07-11');
+select o.*,b.* from dbOrder o join dbBaesong b using(orderIdx) where date(o.orderDate) <= date('2024-07-24');
+select * from dbOrder where date(orderDate) >= date('2024-07-11') and date(orderDate) <= date('2024-07-24');
+select * from dbOrder where date(orderDate) between date('2024-07-11') and date('2024-07-24');
+select o.*,b.* from dbOrder o join dbBaesong b using(orderIdx) where date(o.orderDate) >= '2024-07-11' order by orderDate desc limit 0,5;
+select o.*,b.* from dbOrder o join dbBaesong b using(orderIdx) where o.orderDate <= '2024-07-24' order by orderDate desc limit 0,5;
+select o.*,b.* from dbOrder o join dbBaesong b using(orderIdx) where o.mid = 'cjsk1126' and date(orderDate) >= date('2024-07-11') order by orderDate desc limit 0,5;
+select o.*,b.* from dbOrder o join dbBaesong b using(orderIdx) where o.mid = 'cjsk1126' and date(orderDate) <= date('2024-07-24') order by orderDate desc limit 0,5;
+select o.*,b.* from dbOrder o join dbBaesong b using(orderIdx) where o.mid = 'cjsk1126' and orderDate between '2024-07-11' and '2024-07-24' order by orderDate desc limit 0,5;
+select o.*,b.* from dbOrder o join dbBaesong b using(orderIdx) where o.mid = 'cjsk1126' and date(orderDate) >= date('2024-07-11') and date(orderDate) <= date('2024-07-24') order by orderDate desc limit 0,5;
+select o.*,b.* from dbOrder o, dbBaesong b where o.orderIdx=b.orderIdx and o.mid = 'cjsk1126' and date(orderDate) >= date('2024-07-24') and date(orderDate) <= date('2024-07-24') order by orderDate desc limit 0,5;
