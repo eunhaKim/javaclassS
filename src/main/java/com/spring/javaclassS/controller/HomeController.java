@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
@@ -21,9 +22,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.spring.javaclassS.service.HomeService;
+import com.spring.javaclassS.service.NotifyService;
 import com.spring.javaclassS.service.StudyService;
+import com.spring.javaclassS.vo.NotifyVO;
+import com.spring.javaclassS.vo.WebChattingVO;
 
 @Controller
 public class HomeController {
@@ -32,6 +38,12 @@ public class HomeController {
 	
 	@Autowired
 	StudyService studyService;
+	
+	@Autowired
+	HomeService homeService;
+	
+	@Autowired
+	NotifyService notifyService;
 	
 	@RequestMapping(value = {"/","/h"}, method = RequestMethod.GET)
 	public String homeGet(Locale locale, Model model) {
@@ -43,6 +55,11 @@ public class HomeController {
 		String formattedDate = dateFormat.format(date);
 		
 		model.addAttribute("serverTime", formattedDate );
+		
+		// 첫화면에 공지사항 팝업으로 띄우기
+		List<NotifyVO> popupVos = notifyService.getNotifyPopup();
+		System.out.println(popupVos);
+		model.addAttribute("popupVos", popupVos);
 		
 		return "home";
 	}
@@ -108,6 +125,19 @@ public class HomeController {
 	@RequestMapping(value = "/webSocket/webSocket", method = RequestMethod.GET)
 	public String webSocketGet() {
     return "webSocket/webSocket";
+	}
+	
+	// 채팅메세지 DB에 저장하기
+	@ResponseBody
+	@RequestMapping(value = "/webSocket/msgInput", method = RequestMethod.POST)
+	public String msgInputPost(WebChattingVO vo) {
+		return homeService.setMsgInput(vo) + "";
+	}
+	
+	// 1대1 채팅폼
+	@RequestMapping(value = "/webSocket/endPoint", method = RequestMethod.GET)
+	public String endPointGet() {
+		return "webSocket/endPoint";
 	}
 	
 }
